@@ -12,7 +12,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $products = Product::all();
+        return response()->json($products);
     }
 
     /**
@@ -20,7 +21,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        return view('product.create');
     }
 
     /**
@@ -32,23 +33,13 @@ class ProductController extends Controller
             'name' => 'required|string|max:64',
             'description' => 'required|string|max:512',
             'price' => 'required|numeric|min:1',
-            'has_battery' => 'required|boolean',
-            'battery_duration' => 'sometimes|required_if:has_battery,true|min:1',
-            'colors' => 'required|array',
-            'colors.*' => 'string',
-            'dimensions' => 'required|array',
-            'dimensions.width' => 'required|numeric|min:1',
-            'dimensions.height' => 'required|numeric|min:1',
-            'dimensions.lenght' => 'required|numeric|min:1',
-            'accesories' => 'required|array',
-            'accessories.*.name' => 'required|string',
-            'accesories.*.price' => 'required|numeric|min:1'
         ]);
 
         Product::create($data);
 
         return response()->json([
-            'message' => 'Producto creado con éxito'
+            'message' => 'Product created successfully',
+            'product' => $data
         ]);
     }
 
@@ -57,7 +48,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
+        return response()->json($product);
     }
 
     /**
@@ -65,7 +56,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        $this->authorize('update');
+        return view('product.edit');
     }
 
     /**
@@ -73,7 +65,17 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $this->authorize('update');
+        $data = $request->validate([
+            'name' => 'required|string|max:64',
+            'description' => 'required|string|max:512',
+            'price' => 'required|numeric|min:1',
+        ]);
+        $product->update($data);
+        return response()->json([
+            'message' => 'Product updated successfully',
+            'product' => $product
+        ]);
     }
 
     /**
@@ -81,6 +83,13 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $this->authorize('delete');
+
+        $product->delete();
+
+        return response()->json([
+            'message' => 'Product deleted successfully',
+            'product' => $product
+        ]);
     }
 }
