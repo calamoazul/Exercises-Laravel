@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\Log;
+use Monolog\Logger as MonologLogger;
 
 class ProductController extends Controller
 {
@@ -29,17 +32,17 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $product = $request->validate([
             'name' => 'required|string|max:64',
             'description' => 'required|string|max:512',
             'price' => 'required|numeric|min:1',
         ]);
 
-        Product::create($data);
-
+        Product::create($product);
+        Log::info('Product created', ['product' => $product]);
         return response()->json([
             'message' => 'Product created successfully',
-            'product' => $data
+            'product' => $product
         ]);
     }
 
@@ -83,9 +86,10 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        $this->authorize('delete');
+    
 
         $product->delete();
+        Log::info('Product deleted', ['message' => $product]);
 
         return response()->json([
             'message' => 'Product deleted successfully',
